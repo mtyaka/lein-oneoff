@@ -101,11 +101,13 @@ for a one-off project."
   Short forms (-e, -r, -c, -s) may be used instead.
   If <command> is omitted, --exec is assumed."))
 
-(defn execute-script [script]
+(defn execute-script [script & args]
   (let [project (oneoff-project script)
+        args (when args (vec args))
         form `(do
                 ~defdeps-defmacro-form
-                (clojure.main/load-script ~script))]
+                (binding [*command-line-args* ~args]
+                  (clojure.main/load-script ~script)))]
     (leiningen.compile/eval-in-project project form)))
 
 (defn start-repl-server [script]
@@ -134,13 +136,13 @@ Syntax: lein oneoff <command> <file>
   If <command> is omitted, --exec is assumed.
 
 See http://github.com/mtyaka/lein-oneoff for more information."
-  ([cmd script]
+  ([cmd script & args]
    (case cmd
-         ("--exec" "-e") (execute-script script)
+         ("--exec" "-e") (apply execute-script script args)
          ("--repl" "-r") (start-repl-server script)
          ("--classpath" "-c") (print-classpath script)
          ("--swank" "-s") (start-swank-server script)
-         (print-usage)))
+         (apply oneoff "--exec" cmd script args)))
   ([script]
    (oneoff "--exec" script))
   ([]
