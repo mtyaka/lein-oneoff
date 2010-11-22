@@ -109,7 +109,7 @@ into the `$HOME/.lein/plugins` folder.
 Leiningen 1.4.0 comes with a built-in task for installing user-level
 plugins:
 
-    $ lein plugin install lein-oneoff 0.0.1
+    $ lein plugin install lein-oneoff 0.0.2
 
 lein-oneoff has been tested with leiningen 1.3.1 and 1.4.0-RC1.
 
