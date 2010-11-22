@@ -77,9 +77,7 @@ for a one-off project."
   (add-hook swank-form-var oneoff-swank-form-hook))
 
 (defn parse-defdeps [script]
-  (let [contents (slurp script)
-        forms (load-string (str "(quote [" contents "])"))
-        form (first forms)]
+  (let [form (read-string (slurp script))]
     (if (= (first form) 'defdeps)
       [(nth form 1) (nth form 2 {})]
       [default-deps {}])))
