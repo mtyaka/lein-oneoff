@@ -113,11 +113,11 @@ for a one-off project."
 (defn start-repl-server [script]
   (leiningen.repl/repl (oneoff-project script)))
 
-(defn start-swank-server [script]
+(defn start-swank-server [script & args]
   (if lein-swank-ns
     (if swank-form-var
       (let [swank-fn (ns-resolve lein-swank-ns 'swank)]
-        (swank-fn (oneoff-project script)))
+        (apply swank-fn (oneoff-project script) args))
       (abort "The oneoff swank task only works with
 swank-clojure 1.3.0-SNAPSHOT or newer."))
     (abort "You'll need to install swank-clojure as a user plugin
@@ -141,7 +141,7 @@ See http://github.com/mtyaka/lein-oneoff for more information."
          ("--exec" "-e") (apply execute-script script args)
          ("--repl" "-r") (start-repl-server script)
          ("--classpath" "-c") (print-classpath script)
-         ("--swank" "-s") (start-swank-server script)
+         ("--swank" "-s") (apply start-swank-server script args)
          (apply oneoff "--exec" cmd script args)))
   ([script]
    (oneoff "--exec" script))
