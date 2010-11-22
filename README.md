@@ -103,7 +103,7 @@ This plugin should be installed as a user-level leiningen plugin.
 
 Using leiningen 1.3.1, the easiest way to get going is to drop the
 [lein-oneoff
-jar](https://github.com/downloads/mtyaka/lein-oneoff/lein-oneoff-0.0.1.jar)
+jar](https://github.com/downloads/mtyaka/lein-oneoff/lein-oneoff-0.0.2.jar)
 into the `$HOME/.lein/plugins` folder.
 
 Leiningen 1.4.0 comes with a built-in task for installing user-level
