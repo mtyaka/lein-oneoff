@@ -40,8 +40,8 @@ Returns a sequence of paths referencing jars in the repository."
 for a one-off project."
   [project]
   (concat [(:root project)]
-          (leiningen.classpath/user-plugins)
-          (deps-classpath project)))
+          (deps-classpath project)
+          (leiningen.classpath/user-plugins)))
 
 (defn oneoff-deps-hook [deps project]
   (when-not (:oneoff project) (deps project)))
