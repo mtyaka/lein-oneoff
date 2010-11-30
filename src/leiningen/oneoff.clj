@@ -98,7 +98,7 @@ for a one-off project."
 (defn print-usage []
   (abort "Usage: lein oneoff <command> <file>
   <command> can be one of: --exec, --repl, --classpath, --swank.
-  Short forms (-e, -r, -c, -s) may be used instead.
+  Short forms (-e, -r, -cp, -s) may be used instead.
   If <command> is omitted, --exec is assumed."))
 
 (defn execute-script [script & args]
@@ -132,7 +132,7 @@ proper leiningen project feels like overkill.
 
 Syntax: lein oneoff <command> <file>
   <command> can be one of: --exec, --repl, --classpath, --swank.
-  Short forms (-e, -r, -c, -s) may be used instead.
+  Short forms (-e, -r, -cp, -s) may be used instead.
   If <command> is omitted, --exec is assumed.
 
 See http://github.com/mtyaka/lein-oneoff for more information."
@@ -140,7 +140,7 @@ See http://github.com/mtyaka/lein-oneoff for more information."
    (case cmd
          ("--exec" "-e") (apply execute-script script args)
          ("--repl" "-r") (start-repl-server script)
-         ("--classpath" "-c") (print-classpath script)
+         ("--classpath" "-cp") (print-classpath script)
          ("--swank" "-s") (apply start-swank-server script args)
          (apply oneoff "--exec" cmd script args)))
   ([script]

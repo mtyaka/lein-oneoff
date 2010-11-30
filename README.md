@@ -95,7 +95,7 @@ lein-oneoff offers an equivalent to leiningen's built-in `classpath`
 task which prints the project's classpath for one-off scripts:
 
     $ lein oneoff --classpath example.clj
-    $ lein oneoff -c example.clj
+    $ lein oneoff -cp example.clj
 
 ## Installation
 
