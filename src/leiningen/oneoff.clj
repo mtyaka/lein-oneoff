@@ -52,7 +52,9 @@ for a one-off project."
 
 (defn oneoff-eval-in-project-hook
   [eval-in-project project form & [handler skip-auto-compile init]]
-  (let [skip-auto-compile (or (:oneoff project) skip-auto-compile)]
+  (if (:oneoff project)
+    (binding [leiningen.compile/*skip-auto-compile* true]
+      (eval-in-project project form))
     (eval-in-project project form handler skip-auto-compile init)))
 
 (defn oneoff-repl-server-hook [repl-server project host port]
