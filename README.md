@@ -111,7 +111,7 @@ This plugin should be installed as a user-level leiningen
 plugin. Leiningen 1.4.0 comes with a built-in task for installing
 user-level plugins:
 
-    $ lein plugin install lein-oneoff 0.0.3
+    $ lein plugin install lein-oneoff 0.1.0
 
 lein-oneoff works with leiningen 1.4.0 or newer.
 
