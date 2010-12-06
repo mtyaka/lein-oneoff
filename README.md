@@ -7,10 +7,18 @@ one-off script may sometimes feel like overkill. This is where
 [lein-oneoff](http://github.com/mtyaka/lein-oneoff) comes in.
 
 With the help of lein-oneoff you can open a file, declare
-dependencies at the top and write the rest of the code as
+dependencies at the top, and write the rest of the code as
 usually. lein-oneoff will let you run the file, open a repl or start a swank
 server while taking care of fetching dependencies and constructing the
 classpath automatically.
+
+You might find lein-oneoff useful when you want to play with a brand
+new alpha release of clojure, but would rather not dowload the jar
+manually, when you think you know the answer to a question about a
+particular library posted to the clojure mailing list, but would
+rather test your idea out in the repl before posting the answer, or when
+you quickly want to analyse and plot some data using
+[Incanter](http://incanter.org/).
 
 ## Usage
 
@@ -86,7 +94,7 @@ command:
     $ lein oneoff -s example.clj
 
 Please note that for the swank command to work, you'll need to have
-`swank-clojure` installed as a global leiningen plugin. At the moment,
+`swank-clojure` installed as a user-level leiningen plugin. At the moment,
 only `swank-clojure 1.3.0-SNAPSHOT` is supported.
 
 ### classpath
@@ -99,25 +107,13 @@ task which prints the project's classpath for one-off scripts:
 
 ## Installation
 
-This plugin should be installed as a user-level leiningen plugin.
-
-Using leiningen 1.3.1, the easiest way to get going is to drop the
-[lein-oneoff
-jar](https://github.com/downloads/mtyaka/lein-oneoff/lein-oneoff-0.0.3.jar)
-into the `$HOME/.lein/plugins` folder.
-
-Leiningen 1.4.0 comes with a built-in task for installing user-level
-plugins:
+This plugin should be installed as a user-level leiningen
+plugin. Leiningen 1.4.0 comes with a built-in task for installing
+user-level plugins:
 
     $ lein plugin install lein-oneoff 0.0.3
 
-lein-oneoff has been tested with leiningen 1.3.1 and 1.4.0-RC1.
-
-### Windows issues
-
-Windows lein.bat script that comes with leiningen 1.3.1 doesn't
-support user-level plugins. This was fixed in 1.4.0, so if you're
-using leinigen 1.3.1 on windows you will have to upgrade to 1.4.0-RC1.
+lein-oneoff works with leiningen 1.4.0 or newer.
 
 ## License
 
