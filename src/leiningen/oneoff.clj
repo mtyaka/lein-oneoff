@@ -1,4 +1,5 @@
 (ns leiningen.oneoff
+  "Run a one-off script or start a one-off repl/swank server."
   (:use [robert.hooke :only [add-hook]]
         [leiningen.core :only [abort]])
   (:require [lancet]
