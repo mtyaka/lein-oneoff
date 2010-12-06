@@ -1,10 +1,9 @@
 (ns leiningen.oneoff
   (:use [robert.hooke :only [add-hook]]
         [leiningen.core :only [abort]])
-  (:require
-     [lancet]
-     [clojure.main]
-     [leiningen compile classpath repl deps])
+  (:require [lancet]
+            [clojure.main]
+            [leiningen compile classpath repl deps])
   (:import java.io.File))
 
 (try
