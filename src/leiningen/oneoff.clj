@@ -2,14 +2,18 @@
   "Run a one-off script or start a one-off repl/swank server."
   (:use [robert.hooke :only [add-hook]]
         [leiningen.core :only [abort]])
-  (:require [lancet]
-            [clojure.main]
-            [leiningen compile classpath repl deps])
+  (:require (clojure.main)
+            (leiningen compile classpath repl deps))
   (:import java.io.File))
 
-(try
-  (require 'leiningen.swank)
-  (catch java.io.FileNotFoundException e))
+;; Leiningen 1.4 uses lancet, while newer versions use lancet.core.
+(try (require '[lancet.core :as lancet])
+     (catch java.io.FileNotFoundException e (require 'lancet)))
+
+;; Try to load leiningen.swank. This only succeeds when swank-clojure
+;; is in leiningen's classpath.
+(try (require 'leiningen.swank)
+     (catch java.io.FileNotFoundException e))
 
 (def lein-swank-ns (find-ns 'leiningen.swank))
 
@@ -37,7 +41,7 @@ Returns a sequence of paths referencing jars in the repository."
 
 (defn get-oneoff-classpath
   "Returns a sequence of paths that constitute the full classpath
-for a one-off project."
+of a one-off project."
   [project]
   (concat [(:root project)]
           (deps-classpath project)
