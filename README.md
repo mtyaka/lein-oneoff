@@ -94,8 +94,8 @@ command:
     $ lein oneoff -s example.clj
 
 Please note that for the swank command to work, you'll need to have
-`swank-clojure` installed as a user-level leiningen plugin. At the moment,
-only `swank-clojure 1.3.0-SNAPSHOT` is supported.
+`swank-clojure 1.3.0` or newer installed as a user-level leiningen
+plugin.
 
 ### classpath
 

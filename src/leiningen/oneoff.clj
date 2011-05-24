@@ -125,7 +125,7 @@ of a one-off project."
       (let [swank-fn (ns-resolve lein-swank-ns 'swank)]
         (apply swank-fn (oneoff-project script) args))
       (abort "The oneoff swank task only works with
-swank-clojure 1.3.0-SNAPSHOT or newer."))
+swank-clojure 1.3.0 or newer."))
     (abort "You'll need to install swank-clojure as a user plugin
 for this task to work.")))
 
