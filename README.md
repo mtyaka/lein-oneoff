@@ -28,9 +28,9 @@ optionally prefix the `defdeps` form with the reader macro #_ (ignore
 next form). Here's an example:
 
     #_(defdeps
-      [[org.clojure/clojure "1.2.0"]
-       [compojure "0.5.2"]
-       [ring/ring-jetty-adapter "0.3.3"]])
+        [[org.clojure/clojure "1.2.0"]
+         [compojure "0.5.2"]
+         [ring/ring-jetty-adapter "0.3.3"]])
 
     (ns example
       (:use [compojure.core]
