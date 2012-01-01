@@ -23,9 +23,11 @@ you quickly want to analyse and plot some data using
 ## Usage
 
 lein-oneoff scripts usually consist of a single file. Dependencies
-should be stated at the top using the `defdeps` form. Here's an example:
+should be stated at the top using the `defdeps` form. You may
+optionally prefix the `defdeps` form with the reader macro #_ (ignore
+next form). Here's an example:
 
-    (defdeps
+    #_(defdeps
       [[org.clojure/clojure "1.2.0"]
        [compojure "0.5.2"]
        [ring/ring-jetty-adapter "0.3.3"]])
@@ -60,9 +62,10 @@ signature:
 where dependencies should be specified as a vector using the same
 syntax as inside regular leiningen `defproject` form under the
 `:dependencies` key. The second argument is an optional map of
-additional standard `defproject` entries. Please note that not
-all of the available leinigen options make sense for a one-off script
-and might not work correctly.
+additional standard `defproject` entries. Please note that not all of
+the available leinigen options make sense for a one-off script and
+might not work correctly. Adding a `#_` prefix will make it possible
+ignore the `defdeps` form when re-compiling the file in a repl.
 
 One of the entries that can be useful is the `:repositories` entry. Here's
 an example:

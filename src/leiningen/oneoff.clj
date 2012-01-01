@@ -82,8 +82,12 @@ of a one-off project."
 (when swank-form-var
   (add-hook swank-form-var oneoff-swank-form-hook))
 
-(defn parse-defdeps [script]
-  (let [form (read-string (slurp script))]
+(defn parse-defdeps
+  "Parse the defdeps form from the script, removing any leading #_
+  reader macro if needed."
+  [script]
+  (let [form (read-string
+              (.replaceFirst (re-matcher #"^ *#_" (slurp script)) ""))]
     (if (= (first form) 'defdeps)
       [(nth form 1) (nth form 2 {})]
       [default-deps {}])))
