@@ -65,7 +65,7 @@ syntax as inside regular leiningen `defproject` form under the
 additional standard `defproject` entries. Please note that not all of
 the available leinigen options make sense for a one-off script and
 might not work correctly. Adding a `#_` prefix will make it possible
-ignore the `defdeps` form when re-compiling the file in a repl.
+to ignore the `defdeps` form when re-compiling the file in a repl.
 
 One of the entries that can be useful is the `:repositories` entry. Here's
 an example:
