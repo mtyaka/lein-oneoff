@@ -87,7 +87,7 @@ of a one-off project."
   reader macro if needed."
   [script]
   (let [form (read-string
-              (.replaceFirst (re-matcher #"^ *#_" (slurp script)) ""))]
+              (.replaceFirst (re-matcher #"^\s*#_" (slurp script)) ""))]
     (if (= (first form) 'defdeps)
       [(nth form 1) (nth form 2 {})]
       [default-deps {}])))
