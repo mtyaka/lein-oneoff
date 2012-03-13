@@ -33,7 +33,7 @@ next form). Here's an example:
          [ring/ring-jetty-adapter "0.3.3"]])
 
     (ns example
-      (:use [compojure.core]
+      (:use [compojure.core :only [defroutes GET]]
             [ring.adapter.jetty :only [run-jetty]]))
 
     (defroutes routes
