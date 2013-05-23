@@ -1,10 +1,10 @@
 
 #_(defdeps
-    [[org.clojure/clojure "1.2.1"]])
+    [[org.clojure/clojure "1.5.0-RC6"]])
 
 (ns sample1
-  (:use [clojure.java.io :only [file]]))
+  (:require [clojure.java.io :refer [file]]))
 
-(spit (file *file* "../output")
+(spit (.getCanonicalFile (file *file* "../output"))
       (str "Running sample.clj under clojure " (clojure-version) " "
            "with arguments: " (prn-str *command-line-args*)))

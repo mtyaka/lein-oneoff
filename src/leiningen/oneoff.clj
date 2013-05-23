@@ -1,159 +1,76 @@
 (ns leiningen.oneoff
-  "Run a one-off script or start a one-off repl/swank server."
-  (:use [robert.hooke :only [add-hook]]
-        [leiningen.core :only [abort]])
-  (:require (clojure.main)
-            (leiningen compile classpath repl deps))
-  (:import java.io.File))
+  (:require [clojure.string :refer [replace-first]]
+            [clojure.java.io :refer [file]]
+            [leiningen.core.project]
+            [leiningen.core.eval]
+            [leiningen.core.main]
+            [leiningen.repl]
+            [leiningen.classpath]))
 
-;; Leiningen 1.4 uses lancet, while newer versions use lancet.core.
-(try (require '[lancet.core :as lancet])
-     (catch java.io.FileNotFoundException e (require 'lancet)))
-
-;; Try to load leiningen.swank. This only succeeds when swank-clojure
-;; is in leiningen's classpath.
-(try (require 'leiningen.swank)
-     (catch java.io.FileNotFoundException e))
-
-(def lein-swank-ns (find-ns 'leiningen.swank))
-
-(def swank-form-var
-     (when lein-swank-ns (ns-resolve lein-swank-ns 'swank-form)))
-
-(def default-deps
-  `[[org.clojure/clojure ~(clojure-version)]])
-
-(def defdeps-defmacro-form
-  `(defmacro ~'defdeps [& args#]))
-
-(defn deps-classpath
-  "Resolves and installs dependencies to the local maven repository.
-Returns a sequence of paths referencing jars in the repository."
-  [project]
-  (let [deps-task (leiningen.deps/make-deps-task project :dependencies)
-        _ (.execute deps-task)
-        fileset (.getReference lancet/ant-project
-                               (.getFilesetId deps-task))
-        dir-scanner (.getDirectoryScanner fileset lancet/ant-project)
-        base-dir (.getBasedir dir-scanner)]
-    (for [fpath (.getIncludedFiles dir-scanner)]
-      (.getCanonicalPath (File. base-dir fpath)))))
-
-(defn get-oneoff-classpath
-  "Returns a sequence of paths that constitute the full classpath
-of a one-off project."
-  [project]
-  (concat [(:root project)]
-          (deps-classpath project)
-          (leiningen.classpath/user-plugins)))
-
-(defn oneoff-deps-hook [deps project]
-  (when-not (:oneoff project) (deps project)))
-
-(defn oneoff-get-classpath-hook [get-classpath project]
-  (if (:oneoff project)
-    (get-oneoff-classpath project)
-    (get-classpath project)))
-
-(defn oneoff-eval-in-project-hook
-  [eval-in-project project form & [handler skip-auto-compile init]]
-  (if (:oneoff project)
-    (binding [leiningen.compile/*skip-auto-compile* true]
-      (eval-in-project project form))
-    (eval-in-project project form handler skip-auto-compile init)))
-
-(defn oneoff-repl-server-hook [repl-server project host port]
-  (let [server-form (repl-server project host port)]
-    (if (:oneoff project)
-      `(do ~defdeps-defmacro-form ~server-form)
-      server-form)))
-
-(defn oneoff-swank-form-hook [swank-form project port host opts]
-  (let [server-form (swank-form project port host opts)]
-    (if (:oneoff project)
-      `(do ~defdeps-defmacro-form ~server-form)
-      server-form)))
-
-(add-hook #'leiningen.deps/deps oneoff-deps-hook)
-(add-hook #'leiningen.compile/eval-in-project oneoff-eval-in-project-hook)
-(add-hook #'leiningen.classpath/get-classpath oneoff-get-classpath-hook)
-(add-hook #'leiningen.repl/repl-server oneoff-repl-server-hook)
-
-(when swank-form-var
-  (add-hook swank-form-var oneoff-swank-form-hook))
-
-(defn parse-defdeps
-  "Parse the defdeps form from the script, removing any leading #_
-  reader macro if needed."
-  [script]
-  (let [form (read-string
-              (.replaceFirst (re-matcher #"^\s*#_" (slurp script)) ""))]
-    (if (= (first form) 'defdeps)
-      [(nth form 1) (nth form 2 {})]
-      [default-deps {}])))
+(defn parse-defdeps [script]
+  (let [contents (slurp script)
+        contents (replace-first contents #"^\s*#_" "")
+        [sym deps opts] (read-string contents)]
+    (if (= sym 'defdeps)
+      (assoc opts :dependencies deps)
+      {:dependencies `[[org.clojure/clojure ~(clojure-version)]]})))
 
 (defn oneoff-project [script]
   (let [dir (System/getProperty "user.dir")
-        [deps opts] (parse-defdeps script)]
-    (merge
-      {:oneoff true
-       :name "A oneoff project"
-       :version "1.0.0"
-       :dependencies deps
-       :root dir
-       :compile-path (str dir "/classes")
-       :library-path (str dir "/lib")}
-      opts)))
+        tmpdir (System/getProperty "java.io.tmpdir")
+        declarations (parse-defdeps script)
+        defaults {:name "oneoff"
+                  :version "0.1"
+                  :oneoff true
+                  :eval-in :subprocess
+                  :injections ['(defmacro defdeps [& args])]
+                  :prep-tasks []
+                  :root dir
+                  :source-paths [dir]
+                  :target-path (file tmpdir "oneoff")
+                  :compile-path (file tmpdir "oneoff" "classes")
+                  :test-paths []
+                  :resource-paths []
+                  :dev-resources-path dir}
+        ;; project-with-profiles function was added in Leiningen 2.1,
+        ;; add a workaround for 2.0.
+        with-profiles (resolve 'leiningen.core.project/project-with-profiles)
+        with-profiles (or with-profiles identity)]
+    (-> (merge defaults declarations)
+        (leiningen.core.project/make)
+        (with-profiles)
+        ;; init-profiles is marked as :internal, but it looks like
+        ;; there's no other way of doing this.
+        (leiningen.core.project/init-profiles [:default]))))
 
-(defn print-usage []
-  (abort "Usage: lein oneoff <command> <file>
-  <command> can be one of: --exec, --repl, --classpath, --swank.
-  Short forms (-e, -r, -cp, -s) may be used instead.
-  If <command> is omitted, --exec is assumed."))
+(defn execute-script [project script args]
+  (let [args (when args (vec args))
+        form `(binding [*command-line-args* ~args]
+                (clojure.main/load-script ~script))]
+    (leiningen.core.eval/eval-in-project project form)))
 
-(defn execute-script [script & args]
-  (let [project (oneoff-project script)
-        args (when args (vec args))
-        form `(do
-                ~defdeps-defmacro-form
-                (binding [*command-line-args* ~args]
-                  (clojure.main/load-script ~script)))]
-    (leiningen.compile/eval-in-project project form)))
+(defn ^:no-project-needed oneoff
+  "Manages dependencies of one-off clojure scripts.
 
-(defn start-repl-server [script]
-  (leiningen.repl/repl (oneoff-project script)))
-
-(defn start-swank-server [script & args]
-  (if lein-swank-ns
-    (if swank-form-var
-      (let [swank-fn (ns-resolve lein-swank-ns 'swank)]
-        (apply swank-fn (oneoff-project script) args))
-      (abort "The oneoff swank task only works with
-swank-clojure 1.3.0 or newer."))
-    (abort "You'll need to install swank-clojure as a user plugin
-for this task to work.")))
-
-(defn print-classpath [script]
-  (leiningen.classpath/classpath (oneoff-project script)))
-
-(defn oneoff
-  "Handles dependencies and execution of one-off scripts when creating a
-proper leiningen project feels like overkill.
+Useful in situations when creating a proper leiningen project feels like
+overkill.
 
 Syntax: lein oneoff <command> <file>
-  <command> can be one of: --exec, --repl, --classpath, --swank.
+  <command> can be one of: --exec, --repl, --classpath.
   Short forms (-e, -r, -cp, -s) may be used instead.
   If <command> is omitted, --exec is assumed.
 
 See http://github.com/mtyaka/lein-oneoff for more information."
-  ([cmd script & args]
-   (case cmd
-         ("--exec" "-e") (apply execute-script script args)
-         ("--repl" "-r") (start-repl-server script)
-         ("--classpath" "-cp") (print-classpath script)
-         ("--swank" "-s") (apply start-swank-server script args)
-         (apply oneoff "--exec" cmd script args)))
-  ([script]
-   (oneoff "--exec" script))
-  ([]
-   (print-usage)))
+  ([_ cmd script & args]
+     (if (= (first cmd) \-)
+       (let [project (oneoff-project script)]
+         (case cmd
+           ("--exec" "-e") (execute-script project script args)
+           ("--repl" "-r") (leiningen.repl/repl project)
+           ("--classpath" "-cp") (leiningen.classpath/classpath project)
+           (leiningen.core.main/abort
+            (format "Unknown command: %s\n"  cmd)
+            "Supported commands: --exec/-e, --repl/-r, --classpath/-cp")))
+       (apply oneoff nil "--exec" cmd script args)))
+  ([_ script]
+     (oneoff nil "--exec" script)))
