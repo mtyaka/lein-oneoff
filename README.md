@@ -8,8 +8,8 @@ one-off script may sometimes feel like overkill. This is where
 
 With the help of lein-oneoff you can open a file, declare
 dependencies at the top, and write the rest of the code as
-usually. lein-oneoff will let you run the file, open a repl or start a swank
-server while taking care of fetching dependencies and constructing the
+usually. lein-oneoff will let you run the file or open a repl session
+while taking care of fetching dependencies and constructing the
 classpath automatically.
 
 You might find lein-oneoff useful when you want to play with a brand
@@ -24,7 +24,7 @@ you quickly want to analyse and plot some data using
 
 lein-oneoff scripts usually consist of a single file. Dependencies
 should be stated at the top using the `defdeps` form. You may
-optionally prefix the `defdeps` form with the reader macro #_ (ignore
+optionally prefix the `defdeps` form with the `#_` reader macro (ignore
 next form). Here's an example:
 
     #_(defdeps
@@ -46,11 +46,9 @@ Save this file as `example.clj`, then run it with:
 
     $ lein oneoff example.clj
 
-This command will check the specified dependencies and install them
+This command will resolve the specified dependencies and install them
 into the local maven repository (`~/.m2/repository`) unless already
-installed, and then run `example.clj` with the necessary dependencies
-in the classpath. Note that the dependencies are referenced directly
-from the local maven repository.
+installed, and then run `example.clj` with the classpath properly set.
 
 ### The defdeps form
 
@@ -80,6 +78,20 @@ The `defdeps` form may be omitted in which case the only assumed
 dependency is `org.clojure/clojure` of the same version as your leiningen
 installation is using.
 
+### exec
+
+To execute (load) a one-off script, use the `--exec` (or `-e` for short)
+command. Any arguments positioned after the script name are passed to
+the script as `*command-line-args*`.
+
+    $ lein oneoff --exec example.clj arg1 arg2
+    $ lein oneoff -e example.clj
+
+The `--exec` command is the default, so you can omit it altogether.
+
+    $ lein oneoff example.clj
+    $ lein oneoff example.clj 8080 127.0.0.1
+
 ### repl
 
 To start a repl in the context of a one-off script, use the `--repl`
@@ -87,18 +99,6 @@ command (or its shorter equivalent, `-r`):
 
     $ lein oneoff --repl example.clj
     $ lein oneoff -r example.clj
-
-### swank
-
-A swank server can be started with the `--swank` (or `-s`)
-command:
-
-    $ lein oneoff --swank example.clj
-    $ lein oneoff -s example.clj
-
-Please note that for the swank command to work, you'll need to have
-`swank-clojure 1.3.0` or newer installed as a user-level leiningen
-plugin.
 
 ### classpath
 
@@ -110,13 +110,16 @@ task which prints the project's classpath for one-off scripts:
 
 ## Installation
 
-This plugin should be installed as a user-level leiningen
-plugin. Leiningen 1.4.0 comes with a built-in task for installing
-user-level plugins:
+This plugin should be installed as a global user-level leiningen
+plugin. You can install it by adding the following line to
+`~/.lein/profiles.clj`:
 
-    $ lein plugin install lein-oneoff 0.2.0
+    {:user {:plugins [[lein-oneoff "0.3.0"]]}}
 
-lein-oneoff works with leiningen 1.4.0 or newer.
+This version of `lein-oneoff` works with leiningen 2.0.0 or newer.
+If you are using Leinigen 1.x, please check out
+[release 0.2.0](https://github.com/mtyaka/lein-oneoff/tree/v0.2.0).
+
 
 ## License
 
