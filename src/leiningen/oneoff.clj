@@ -20,6 +20,7 @@
         tmpdir (System/getProperty "java.io.tmpdir")
         declarations (parse-defdeps script)
         defaults {:name "oneoff"
+                  :group "oneoff"
                   :version "0.1"
                   :oneoff true
                   :eval-in :subprocess
