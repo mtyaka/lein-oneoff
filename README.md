@@ -114,7 +114,7 @@ This plugin should be installed as a global user-level leiningen
 plugin. You can install it by adding the following line to
 `~/.lein/profiles.clj`:
 
-    {:user {:plugins [[lein-oneoff "0.3.0"]]}}
+    {:user {:plugins [[lein-oneoff "0.3.1"]]}}
 
 This version of `lein-oneoff` works with leiningen 2.0.0 or newer.
 If you are using Leinigen 1.x, please check out

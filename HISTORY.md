@@ -1,3 +1,7 @@
+## 0.3.1 (2014-06-22)
+
+* Fixes compatibility issues with Leiningen >= 2.3.x (Mathew Thomas)
+
 ## 0.3.0 (2013-05-23)
 
 * Rewrite for Leiningen 2
