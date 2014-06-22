@@ -27,8 +27,8 @@
                   :prep-tasks []
                   :root dir
                   :source-paths [dir]
-                  :target-path (file tmpdir "oneoff")
-                  :compile-path (file tmpdir "oneoff" "classes")
+                  :target-path (.getAbsolutePath (file tmpdir "oneoff"))
+                  :compile-path (.getAbsolutePath (file tmpdir "oneoff" "classes"))
                   :test-paths []
                   :resource-paths []
                   :dev-resources-path dir}
