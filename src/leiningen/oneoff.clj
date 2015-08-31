@@ -16,9 +16,9 @@
       {:dependencies `[[org.clojure/clojure ~(clojure-version)]]})))
 
 (defn oneoff-project [script]
-  (let [dir (System/getProperty "user.dir")
+  (let [dir (System/getProperty "leiningen.original.pwd")
         tmpdir (System/getProperty "java.io.tmpdir")
-        declarations (parse-defdeps script)
+        declarations (parse-defdeps (file dir script))
         defaults {:name "oneoff"
                   :group "oneoff"
                   :version "0.1"
