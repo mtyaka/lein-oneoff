@@ -1,4 +1,4 @@
-(defproject lein-oneoff "0.3.1"
+(defproject lein-oneoff "0.3.2"
   :description "Dependency management for one-off scripts."
   :url "https://github.com/mtyaka/lein-oneoff"
   :eval-in :leiningen

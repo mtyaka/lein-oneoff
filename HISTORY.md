@@ -1,3 +1,8 @@
+## 0.3.2 (2015-08-31)
+
+* Fix issue when invoking lein oneoff from a subfolder of a project
+  containing a project.clj file.
+
 ## 0.3.1 (2014-06-22)
 
 * Fixes compatibility issues with Leiningen >= 2.3.x (Mathew Thomas)
